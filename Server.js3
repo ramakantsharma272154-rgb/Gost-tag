@@ -1,0 +1,28 @@
+// Add a variable to track invisibility
+let isInvisible = false;
+
+socket.on('move', (data) => {
+    players[socket.id].x = data.x;
+    players[socket.id].y = data.y;
+    
+    // If the ghost is invisible, we send "null" data to hunters
+    let dataToSend = JSON.parse(JSON.stringify(players)); 
+    if (isInvisible && ghostId) {
+        dataToSend[ghostId].x = -999; // Move ghost "off-map" for hunters
+        dataToSend[ghostId].y = -999;
+    }
+    io.emit('update', dataToSend);
+});
+
+// New trigger for the Vanish ability
+socket.on('activate_vanish', () => {
+    if (socket.id === ghostId && !isInvisible) {
+        isInvisible = true;
+        io.emit('ghost_vanished'); // Tell everyone the ghost is gone
+        
+        setTimeout(() => {
+            isInvisible = false;
+            io.emit('ghost_reappeared'); // Tell everyone they are back
+        }, 10000); // 10 seconds of invisibility
+    }
+});
