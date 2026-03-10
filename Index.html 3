@@ -1,0 +1,11 @@
+/* Visual feedback when ghost vanishes */
+.static-effect {
+    filter: blur(5px) grayscale(100%);
+    opacity: 0.5;
+}
+#vanish-btn {
+    display: none; /* Hidden by default */
+    background: #555;
+    color: white;
+    margin-top: 10px;
+}
