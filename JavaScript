@@ -1,0 +1,33 @@
+// 1. Show button only if you are the ghost
+socket.on('update', (players) => {
+    if (players[socket.id].role === 'ghost') {
+        document.getElementById('vanish-btn').style.display = 'block';
+        document.getElementById('status').innerText = "YOU ARE THE GHOST - RUN!";
+    }
+    // ... (keep your existing compass/distance logic here)
+});
+
+// 2. The physical trigger to vanish
+function useVanish() {
+    socket.emit('activate_vanish');
+    document.getElementById('vanish-btn').disabled = true;
+    document.getElementById('vanish-btn').innerText = "COOLDOWN...";
+    
+    // Reset button after 30 seconds
+    setTimeout(() => {
+        document.getElementById('vanish-btn').disabled = false;
+        document.getElementById('vanish-btn').innerText = "VANISH";
+    }, 30000);
+}
+
+// 3. Hunter visual feedback
+socket.on('ghost_vanished', () => {
+    document.getElementById('compass-container').classList.add('static-effect');
+    document.getElementById('status').innerText = "SIGNAL LOST...";
+});
+
+socket.on('ghost_reappeared', () => {
+    document.getElementById('compass-container').classList.remove('static-effect');
+    document.getElementById('status').innerText = "SIGNAL RESTORED!";
+});
+
