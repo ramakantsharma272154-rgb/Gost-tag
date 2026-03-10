@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ghost Flashlight Tag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #111; color: white; text-align: center; font-family: sans-serif; }
+        #radar { width: 200px; height: 200px; border-radius: 50%; border: 2px solid #0f0; margin: 20px auto; }
+        .btn { padding: 20px; background: #0f0; color: #000; border: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1 id="status">Scanning for Spirits...</h1>
+    <div id="radarTextText">Ghost Distance: <span id="dist">--</span></div>
+    <br>
+    <button class="btn" onclick="blast()">SHINE LIGHT (TRAP)</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let myRole = "";
+
+        // Use GPS or Simulated Touch for movement
+        window.onclick = (e) => {
+            socket.emit('move', { x: e.clientX, y: e.clientY });
+        };
+
+        socket.on('update', (players) => {
+            const me = players[socket.id];
+            const ghost = Object.values(players).find(p => p.role === 'ghost');
+
+            if (me && ghost && socket.id !== ghost.id) {
+                // Formula for Distance: d = sqrt((x2-x1)^2 + (y2-y1)^2)
+                const dist = Math.sqrt(Math.pow(ghost.x - me.x, 2) + Math.pow(ghost.y - me.y, 2));
+                document.getElementById('dist').innerText = Math.floor(dist);
+
+                // PHYSICAL TRIGGER: Vibrate if ghost is within 50 pixels
+                if (dist < 50) {
+                    window.navigator.vibrate(200); 
+                    document.body.style.background = "red";
+                } else {
+                    document.body.style.background = "#111";
+                }
+            }
+        });
+
+        function blast() {
+            alert("Light Flashed! Did you catch him?");
+        }
+    </script>
+</body>
+  </html>
+  
